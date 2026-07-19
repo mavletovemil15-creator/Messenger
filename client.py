@@ -43,7 +43,7 @@ class MessengerApp(App):
 
         try:
             r = requests.post(
-                "http://127.0.0.1:8000/register",
+                "https://messenger-pdyf.onrender.com/register",
                 json=data
             )
             self.info.text = r.json()["message"]
