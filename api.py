@@ -10,6 +10,12 @@ class User(BaseModel):
     password: str
 
 
+class Message(BaseModel):
+    sender: str
+    receiver: str
+    message: str
+
+
 @router.post("/register")
 def register(user: User):
     conn = sqlite3.connect("users.db")
@@ -62,3 +68,45 @@ def login(user: User):
             "status": "error",
             "message": "Неверный логин или пароль"
         }
+
+
+@router.post("/send_message")
+def send_message(msg: Message):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)",
+        (msg.sender, msg.receiver, msg.message)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "ok",
+        "message": "Сообщение отправлено"
+    }
+
+
+@router.post("/get_messages")
+def get_messages(user: Message):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT sender, message
+        FROM messages
+        WHERE receiver=?
+        """,
+        (user.receiver,)
+    )
+
+    messages = cursor.fetchall()
+
+    conn.close()
+
+    return {
+        "messages": messages
+    }
