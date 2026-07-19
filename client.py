@@ -1,3 +1,4 @@
+
 import requests
 
 from kivy.app import App
@@ -9,9 +10,13 @@ from kivy.uix.label import Label
 
 class MessengerApp(App):
     def build(self):
-        self.layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        self.layout = BoxLayout(
+            orientation="vertical",
+            padding=20,
+            spacing=10
+        )
 
-        self.info = Label(text="Регистрация")
+        self.info = Label(text="Messenger")
         self.layout.add_widget(self.info)
 
         self.username = TextInput(
@@ -27,13 +32,20 @@ class MessengerApp(App):
         )
         self.layout.add_widget(self.password)
 
-        btn = Button(
+        register_btn = Button(
             text="Зарегистрироваться"
         )
-        btn.bind(on_press=self.register)
-        self.layout.add_widget(btn)
+        register_btn.bind(on_press=self.register)
+        self.layout.add_widget(register_btn)
+
+        login_btn = Button(
+            text="Войти"
+        )
+        login_btn.bind(on_press=self.login)
+        self.layout.add_widget(login_btn)
 
         return self.layout
+
 
     def register(self, instance):
         data = {
@@ -47,8 +59,26 @@ class MessengerApp(App):
                 json=data
             )
             self.info.text = r.json()["message"]
-        except Exception:
-            self.info.text = "Сервер недоступен!"
+
+        except Exception as e:
+            self.info.text = str(e)
+
+
+    def login(self, instance):
+        data = {
+            "username": self.username.text,
+            "password": self.password.text
+        }
+
+        try:
+            r = requests.post(
+                "https://messenger-pdyf.onrender.com/login",
+                json=data
+            )
+            self.info.text = r.json()["message"]
+
+        except Exception as e:
+            self.info.text = str(e)
 
 
 MessengerApp().run()
